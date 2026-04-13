@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import yaml
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +47,11 @@ def load_pages(content_dir: Path, output_dir: Path) -> list[Page]:
     for path in discover_markdown_files(content_dir):
         raw_text = path.read_text(encoding="utf-8")
         metadata, body = parse_frontmatter(raw_text)
+        if raw_text.startswith("---\n"):
+            parts = raw_text.split("---\n", 2)
+            if len(parts) >= 3:
+                full = yaml.safe_load(parts[1]) or {}
+                metadata = {k: v for k, v in full.items()}
         slug = _slug_for(path, content_dir)
         output_path = _output_path_for(slug, output_dir)
         title = _title_from_metadata(metadata, path)
