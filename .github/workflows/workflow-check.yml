@@ -63,5 +63,9 @@ jobs:
           assert [p.relative_to(output) for p in out_files] == [p.relative_to(expected) for p in exp_files]
           for generated in out_files:
               ref = expected / generated.relative_to(output)
-              assert cmp(generated, ref, shallow=False)
+              if not cmp(generated, ref, shallow=False):
+                  print(f"MISMATCH: {generated}")
+                  print("GENERATED:", generated.read_text())
+                  print("EXPECTED:", ref.read_text())
+                  raise AssertionError(f"Mismatch: {generated}")
           PY
